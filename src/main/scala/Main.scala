@@ -1,11 +1,12 @@
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{FormData, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, FromRequestUnmarshaller, PredefinedFromEntityUnmarshallers, Unmarshaller}
 import akka.stream.ActorMaterializer
-import com.animedetour.twellio.TwilioMessage
+import com.animedetour.twellio.{TwilioActor, TwilioMessage}
 import com.sun.xml.internal.ws.util.Pool.Unmarshaller
+import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.io.StdIn
 
@@ -21,18 +22,16 @@ object Main extends App {
       )
     }
 
+  val twilioActor = system.actorOf(Props[TwilioActor], "twilioActor")
+
   val route =
     path("hello") {
-      get {
-        complete {
-          "Hello World"
-        }
-      }
       post {
         decodeRequest {
           entity(as[TwilioMessage]) { twilioMessage =>
             complete {
-              twilioMessage.body + twilioMessage.from
+              twilioActor ! twilioMessage
+              "body:" + twilioMessage.body + " from:" + twilioMessage.from
             }
           }
         }
