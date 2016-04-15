@@ -22,6 +22,8 @@ object Main extends App {
       )
     }
 
+  val port = ConfigFactory.load().getInt("port")
+
   val twilioActor = system.actorOf(Props[TwilioActor], "twilioActor")
 
   val route =
@@ -31,12 +33,12 @@ object Main extends App {
           entity(as[TwilioMessage]) { twilioMessage =>
             complete {
               twilioActor ! twilioMessage
-              "body:" + twilioMessage.body + " from:" + twilioMessage.from
+              "Thanks for the report! We've created a ticket and are looking into it."
             }
           }
         }
       }
     }
 
-  val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
+  val bindingFuture = Http().bindAndHandle(route, "localhost", port)
 }
