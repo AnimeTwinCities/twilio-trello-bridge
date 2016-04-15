@@ -40,5 +40,5 @@ object Main extends App {
       }
     }
 
-  val bindingFuture = Http().bindAndHandle(route, "localhost", port)
+  val bindingFuture = Http().bindAndHandle(route, "0.0.0.0", port)
 }
